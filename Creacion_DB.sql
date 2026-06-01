@@ -69,14 +69,12 @@ Create table Materia (
 Create table Director (
     ID_Director INT IDENTITY (1,1) PRIMARY KEY,
     ID_Docente INT UNIQUE NOT NULL,
+    ID_Depto int,
     Matricula VARCHAR(20) NOT NULL,
     Sueldo_Director DECIMAL(18,2),
-    FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente)
+    FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente),
+    Foreign key (ID_Depto) references Departamento(ID_Depto)
 )
-
-ALTER TABLE Departamento 
-ADD ID_Director INT FOREIGN KEY (ID_Director) REFERENCES Director(ID_Director);
-
 
 Create table Catedra (
     ID_Catedra int identity (1,1) primary key,
