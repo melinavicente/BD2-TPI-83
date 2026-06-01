@@ -8,28 +8,29 @@ Create table Institucion (
     ID_Institucion int identity (1,1) primary key,
     Nombre varchar(50) not null,
     Telefono varchar(20),
-    Email varchar(50)
+    Email varchar(50),
+    Domicilio varchar(100)
 )
 
-Create table Director (
-    ID_Director int identity (1,1) primary key,
-    Nombre varchar(50) not null,
-    Apellido varchar(50) not null,
-    DNI varchar(15) unique not null,
-    Sueldo decimal(18,2),
-    Materia varchar(50)
+CREATE TABLE Personas (
+    ID_Persona INT IDENTITY (1,1) PRIMARY KEY,
+    DNI VARCHAR(15) UNIQUE NOT NULL,
+    Nombre VARCHAR(50) NOT NULL,
+    Apellido VARCHAR(50) NOT NULL,
+    Telefono VARCHAR(20), 
+    Email VARCHAR(50) UNIQUE NOT NULL,
+    Domicilio VARCHAR(100),
+    Fecha_Nacimiento DATE
 )
 
-Create table Departamento (
-    ID_Depto int identity (1,1) primary key,
-    Nombre varchar(100) not null,
-    Telefono varchar(20),
-    Email varchar(50) unique,
-    ID_Director int,
-    ID_Institucion int,
-    FOREIGN KEY (ID_Director) REFERENCES Director(ID_Director),
-    FOREIGN KEY (ID_Institucion) REFERENCES Institucion(ID_Institucion) 
-)
+CREATE TABLE Departamento (
+    ID_Depto INT IDENTITY (1,1) PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(20),
+    Email VARCHAR(50) UNIQUE,
+    ID_Institucion INT,
+    FOREIGN KEY (ID_Institucion) REFERENCES Institucion(ID_Institucion),
+) 
 
 Create table Carrera (
     ID_Carrera int identity (1,1) primary key,
@@ -40,15 +41,20 @@ Create table Carrera (
 )
 
 Create table Alumnos (
-    Legajo_Alumno int identity (1,1) primary key,
-    DNI varchar(15) unique not null,
-    Nombre varchar(50) NOT NULL,
-    Apellido varchar(50) NOT NULL,
-    Telefono varchar(20), 
-    Email varchar(50) unique NOT NULL,
-    Domicilio varchar(100),
-    Fecha_Nacimiento DATE,
-    ID_Carrera int,
+    Legajo_Alumno INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Persona INT UNIQUE NOT NULL,
+    ID_Carrera INT,
+    FOREIGN KEY (ID_Persona) REFERENCES Personas(ID_Persona),
+    FOREIGN KEY (ID_Carrera) REFERENCES Carrera(ID_Carrera)
+)
+
+
+Create table Docentes (
+    ID_Docente INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Persona INT UNIQUE NOT NULL,
+    Sueldo DECIMAL(18,2) NOT NULL,
+    ID_Carrera INT,
+    FOREIGN KEY (ID_Persona) REFERENCES Personas(ID_Persona),
     FOREIGN KEY (ID_Carrera) REFERENCES Carrera(ID_Carrera)
 )
 
@@ -60,16 +66,17 @@ Create table Materia (
     FOREIGN KEY (ID_Carrera) REFERENCES Carrera(ID_Carrera)
 )
 
-Create table Docentes (
-    ID_Docente int identity (1,1) primary key,
-    Nombre varchar(50) NOT NULL,
-    Apellido varchar(50) NOT NULL,
-    Telefono varchar(20), 
-    Email varchar(50) unique NOT NULL,
-    Sueldo decimal(18,2) NOT NULL,
-    ID_Carrera int,
-    FOREIGN KEY (ID_Carrera) REFERENCES Carrera(ID_Carrera)
+Create table Director (
+    ID_Director INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Docente INT UNIQUE NOT NULL,
+    Matricula VARCHAR(20) NOT NULL,
+    Sueldo_Director DECIMAL(18,2),
+    FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente)
 )
+
+ALTER TABLE Departamento 
+ADD ID_Director INT FOREIGN KEY (ID_Director) REFERENCES Director(ID_Director);
+
 
 Create table Catedra (
     ID_Catedra int identity (1,1) primary key,
@@ -91,8 +98,6 @@ Create table Calificaciones (
     FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos(Legajo_Alumno)
 )
 
-
-
 Create table Inscripcion (
     ID_Inscripcion int identity (1,1) primary key,
     ID_Catedra int,
@@ -104,5 +109,32 @@ Create table Inscripcion (
     FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos(Legajo_Alumno)
 )
 
+CREATE TABLE Asistencias (
+    ID_Asistencia INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Catedra INT,
+    Legajo_Alumno INT,
+    Fecha DATE NOT NULL,
+    Estado BIT NOT NULL,
+    FOREIGN KEY (ID_Catedra) REFERENCES Catedra(ID_Catedra),
+    FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos(Legajo_Alumno)
+)
 
+CREATE TABLE Liquidacion_Sueldos (
+    ID_Liquidacion INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Docente INT,
+    Periodo DATE NOT NULL,
+    Monto_Neto DECIMAL(18,2) NOT NULL,
+    Fecha_Pago DATE,
+    ID_Director INT,
+    FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente),
+    FOREIGN KEY (ID_Director) REFERENCES Director(ID_Director)
+)
 
+CREATE TABLE Vacaciones_Docentes (
+    ID_Vacaciones INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Docente INT,
+    Fecha_Inicio DATE NOT NULL,
+    Fecha_Fin DATE NOT NULL,
+    Año_Correspondiente DATE,
+    FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente)
+)
