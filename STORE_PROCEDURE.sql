@@ -147,7 +147,26 @@ exec sp_BuscarAlumnoApellido 'Vicente';
 exec sp_BuscarAlumnoApellido '';
 go
 
---sp_BajaAlumno
+--Permite dar de baja un Alumno
+create procedure sp_BajaAlumno
+    @Legajo_Alumno int
+as
+begin
+
+    if not exists (select 1 from Alumnos where Legajo_Alumno = @Legajo_Alumno)
+    begin
+        raiserror('El alumno no existe.', 16, 1);
+        return;
+    end
+
+    update Alumnos set Estado = 0 where Legajo_Alumno = @Legajo_Alumno;
+
+    print 'Alumno dado de baja correctamente.';
+end
+go
+
+select * from vw_AlumnosCarrera
+
 --sp_InscribirAlumnoMateria
 --sp_RegistrarAsistencia
 --sp_CargarNota
