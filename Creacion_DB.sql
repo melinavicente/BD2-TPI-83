@@ -41,10 +41,17 @@ Create table Carrera (
 )
 
 Create table Alumnos (
-    Legajo_Alumno INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Alumno INT IDENTITY (1,1) PRIMARY KEY,
     ID_Persona INT UNIQUE NOT NULL,
+    FOREIGN KEY (ID_Persona) REFERENCES Personas(ID_Persona)
+)
+
+Create table Alumnos_Carrera (
+    Legajo_Alumno INT IDENTITY (1,1) PRIMARY KEY,
+    ID_Alumno INT NOT NULL,
     ID_Carrera INT,
-    FOREIGN KEY (ID_Persona) REFERENCES Personas(ID_Persona),
+    Estado bit,
+    FOREIGN KEY (ID_Alumno) REFERENCES Alumnos(ID_Alumno),
     FOREIGN KEY (ID_Carrera) REFERENCES Carrera(ID_Carrera)
 )
 
@@ -93,18 +100,17 @@ Create table Calificaciones (
     Calificacion decimal(4,2),
     Fecha_Calificacion DATE,
     FOREIGN KEY (ID_Materia) REFERENCES Materia(ID_Materia),
-    FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos(Legajo_Alumno)
+    FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos_Carrera(Legajo_Alumno)
 )
 
 Create table Inscripcion (
     ID_Inscripcion int identity (1,1) primary key,
     ID_Catedra int,
     Legajo_Alumno int,
-    Estado bit,
     Fecha_Inscripcion DATE,
     Ciclo_Lectivo int,
     FOREIGN KEY (ID_Catedra) REFERENCES Catedra(ID_Catedra),
-    FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos(Legajo_Alumno)
+    FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos_Carrera(Legajo_Alumno)
 )
 
 CREATE TABLE Asistencias (
@@ -114,7 +120,7 @@ CREATE TABLE Asistencias (
     Fecha DATE NOT NULL,
     Estado BIT NOT NULL,
     FOREIGN KEY (ID_Catedra) REFERENCES Catedra(ID_Catedra),
-    FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos(Legajo_Alumno)
+    FOREIGN KEY (Legajo_Alumno) REFERENCES Alumnos_Carrera(Legajo_Alumno)
 )
 
 CREATE TABLE Liquidacion_Sueldos (
