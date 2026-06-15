@@ -55,7 +55,6 @@ Create table Alumnos_Carrera (
     FOREIGN KEY (ID_Carrera) REFERENCES Carrera(ID_Carrera)
 )
 
-
 Create table Docentes (
     ID_Docente INT IDENTITY (1,1) PRIMARY KEY,
     ID_Persona INT UNIQUE NOT NULL,

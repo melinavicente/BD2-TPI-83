@@ -22,7 +22,28 @@ go
 
 select * from vw_AlumnosCarrera 
 
+--vw_AlumnosMateria
+--Muestra el listado de alumnos con sus datos personales y las materias que estan cursando
 
+create view vw_AlumnosMateria as
+select
+    ac.Legajo_Alumno,
+    p.DNI,
+    p.Apellido,
+    p.Nombre,
+    m.Nombre_Materia as Materia,
+    c.ID_Catedra,
+    case when ac.Estado = 1 then 'Activo' else 'Baja' end as Estado
+from Alumnos_Carrera ac
+inner join Alumnos a on ac.ID_Alumno = a.ID_Alumno
+inner join Personas p on a.ID_Persona = p.ID_Persona
+inner join Inscripcion i on ac.Legajo_Alumno = i.Legajo_Alumno
+inner join Catedra c on i.ID_Catedra = c.ID_Catedra
+inner join Materia m on c.ID_Materia = m.ID_Materia
+go
+
+select * from vw_AlumnosMateria 
+go
 
 --vw_PromedioAlumno
 -- Muestra el promedio histórico de calificaciones de cada alumno.

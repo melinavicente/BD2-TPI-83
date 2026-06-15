@@ -61,6 +61,7 @@ begin try
 EXEC sp_AltaAlumno '45123456','Melina','Vicente','0291-4111222','melvicente@mail.com','Femidem 2456','2003-08-03',2;
 EXEC sp_AltaAlumno '46123456','Melisa','Visente','0291-154545','melvicente@hotmail.com','Beltran 2456','2003-08-03',1;
 EXEC sp_AltaAlumno '84545454','Gaston','Perez','0271-154545','perez@hotmail.com','Groussac 2456','2003-08-03',3;
+EXEC sp_AltaAlumno '12345678','Rocio','Santini','618199595','vrs@hotmail.com','asasas 2456','2005-08-03',1;
 
 go 
 
@@ -219,8 +220,11 @@ go
  exec sp_registrarasistencia 1, 1, '2025-04-07', 1;
  exec sp_registrarasistencia 2, 2, '2025-04-07', 0;
 go
+
+select * from Materia
+
 --sp_CargarNota
-alter procedure sp_carganota
+create procedure sp_carganota
     @legajo_alumno int,
     @id_materia int,
     @calificacion decimal(4,2),
@@ -256,7 +260,7 @@ select * from vw_PromedioAlumno
 select * from Calificaciones
 go
 
---Registrar vaciones docentes
+--Registrar vacaciones docentes
 create procedure sp_registrarvacaciones
     @id_docente int,
     @fecha_inicio date,
@@ -325,7 +329,57 @@ print 'Carrera del alumno actualizada correctamente'
 end
 go
 
-exec sp_ModificarCarrera_Alumno 1,2
+exec sp_ModificarCarrera_Alumno 10,2
 select * from vw_AlumnosCarrera
 
 select * from Materia
+
+--sp_AnotarAlumnoMateria
+--Anotar a un alumno a una materia segun la carrera seleccionada
+
+create procedure sp_AnotarAlumnoMateria
+@legajo int,
+@id_Catedra int,
+@fecha_Inscripcion date,
+@Ciclo_Lectivo int
+as begin
+
+    if not exists (select 1 from Alumnos_Carrera where Legajo_Alumno = @legajo and estado = 1)
+    begin
+        raiserror ('el alumno no existe o no se encuentra activo', 16, 1)
+    return 
+    end
+
+    if not exists (select 1 from Catedra where ID_Catedra = @id_Catedra)
+    begin
+        raiserror ('La catedra seleccionada no existe',16,1)
+    return
+    end
+
+    if exists (select 1 from Inscripcion where Legajo_Alumno = @legajo and ID_Catedra = @id_Catedra)
+    begin
+        raiserror ('El alumno ya se encuentra inscripto en esa catedra',16,1)
+    return
+    end
+
+    if not exists (select 1 from Alumnos_Carrera ac 
+        inner join Catedra c on c.ID_Catedra = @id_Catedra
+        inner join Materia m on c.ID_Materia = m.ID_Materia
+        where ac.Legajo_Alumno = @legajo and ac.ID_Carrera = m.ID_Carrera
+    )
+    begin
+        raiserror('La materia no pertenece a la carrera del alumno.',16,1);
+    return;
+    end
+
+insert into Inscripcion (ID_Catedra, Legajo_Alumno,Fecha_Inscripcion,Ciclo_Lectivo)
+values(@id_Catedra, @legajo, @Fecha_Inscripcion, @Ciclo_Lectivo);
+
+    print 'Inscripción realizada correctamente.';
+
+end
+go
+
+exec sp_AnotarAlumnoMateria 8,1,'2024-11-18', 2025
+
+select * from vw_AlumnosMateria
