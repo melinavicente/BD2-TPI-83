@@ -24,7 +24,7 @@ select * from vw_AlumnosCarrera
 
 --vw_AlumnosMateria
 --Muestra el listado de alumnos con sus datos personales y las materias que estan cursando
-
+go
 create view vw_AlumnosMateria as
 select
     ac.Legajo_Alumno,
