@@ -1,6 +1,6 @@
---Al modificar la carrera de un alumno, se dan de baja las materias relacionadas a la carrera anterior
 use Universidad_BD
 go
+--Al modificar la carrera de un alumno, se dan de baja las materias relacionadas a la carrera anterior
 create trigger trg_BajaInscripcionMateriaCambioCarrera on Alumnos_Carrera
 after update
 as
@@ -35,6 +35,7 @@ go
 insert into calificaciones (id_materia, legajo_alumno, calificacion, fecha_calificacion)
 values (1, 1, 11.00, '2024-08-01');
 go
+
 --trg_NoDuplicarInscripcion
 create trigger trg_noduplicarinscripcion
 on inscripcion
@@ -56,12 +57,14 @@ begin
     end
 end
 go
+
 insert into inscripcion (id_catedra, legajo_alumno, fecha_inscripcion, ciclo_lectivo)
 values (1, 1, '2024-03-10', 2024);
 insert into inscripcion (id_catedra, legajo_alumno, fecha_inscripcion, ciclo_lectivo)
 values (1, 1, '2025-03-01', 2025);
---trg_ControlVacaciones
 go
+
+--trg_ControlVacaciones
 create trigger trg_controlvacaciones
 on vacaciones_docentes
 after insert, update
@@ -82,8 +85,9 @@ go
 
 insert into vacaciones_docentes (id_docente, fecha_inicio, fecha_fin, año_correspondiente)
 values (1, '2024-01-10', '2024-01-25', '2024-01-01');
---trg_ActualizarCantidadMaterias
 go
+
+--trg_ActualizarCantidadMaterias
 create trigger trg_actualizarcantidadmaterias
 on materia
 after insert, delete
@@ -106,7 +110,74 @@ go
 insert into materia (nombre_materia, horas_semanales, id_carrera)
 values ('inteligencia artificial', 4, 1);
 select id_carrera, nombre, cantidad_materias from carrera;
+go
 
---trg_RegistrarFechaLiquidacion
+--trg_RegistrarFechaCalculoLiquidacion
+create trigger trg_RegistrarFechaCalculoLiquidacion
+on Liquidacion_Sueldos
+after insert
+as
+begin
+    update ls
+    set Fecha_Calculo = getdate()
+    from Liquidacion_Sueldos ls
+    inner join inserted i on ls.ID_Liquidacion = i.ID_Liquidacion
+end 
+go
+
+insert into Liquidacion_Sueldos (ID_Docente, Periodo, Monto_Neto,Fecha_Pago, ID_Director)
+values(1, '2026-06-01', 150000.00, '2026-06-30', 1);
+go
+
+select * from Liquidacion_Sueldos order by ID_Liquidacion desc;
+go
+
 --trg_ControlCupoMateria
+create trigger trg_ControlCupoMateria
+on Inscripcion
+instead of insert
+as
+begin
+
+    if exists (select 1 from inserted i
+        join Catedra c on i.ID_Catedra = c.ID_Catedra 
+        where(
+            select count(*)
+            from Inscripcion ins where ins.ID_Catedra = i.ID_Catedra) >= c.Cupo_Maximo
+    )
+    begin
+        raiserror('La cátedra ha alcanzado el cupo máximo.',16,1);
+        return;
+    end
+
+    insert into Inscripcion(ID_Catedra, Legajo_Alumno, Fecha_Inscripcion, Ciclo_Lectivo)
+    select ID_Catedra, Legajo_Alumno, Fecha_Inscripcion, Ciclo_Lectivo
+    from inserted;
+end 
+go
+
+insert into Inscripcion(ID_Catedra, Legajo_Alumno, Fecha_Inscripcion, Ciclo_Lectivo)
+values(1, 3, GETDATE(),2026);
+go
+
 --trg_EvitarEliminarMateriaConInscriptos
+create trigger trg_EvitarEliminarMateriaConInscriptos
+on Materia
+instead of delete
+as
+begin
+    if exists (select 1 from deleted d
+    inner join Catedra c on d.ID_Materia = c.ID_Materia
+    inner join Inscripcion i on c.ID_Catedra = i.ID_Catedra)
+    begin
+        raiserror ('No se puede eliminar una materia que tiene alumnos inscriptos', 16, 1);
+        return;
+    end
+
+    delete M from Materia M
+    inner join deleted d on m.ID_Materia = d.ID_Materia;
+end
+go
+
+delete from Materia where Nombre_Materia = 'Programacion I'
+go

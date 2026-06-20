@@ -88,6 +88,7 @@ Create table Catedra (
     ID_Docente int,
     Turno varchar(20) NOT NULL,
     Año_Lectivo int NOT NULL,
+    Cupo_Maximo INT NOT NULL DEFAULT 2,
     FOREIGN KEY (ID_Materia) REFERENCES Materia(ID_Materia),
     FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente)
 )
@@ -127,6 +128,7 @@ CREATE TABLE Liquidacion_Sueldos (
     ID_Docente INT,
     Periodo DATE NOT NULL,
     Monto_Neto DECIMAL(18,2) NOT NULL,
+    Fecha_Calculo DATE,
     Fecha_Pago DATE,
     ID_Director INT,
     FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente),

@@ -66,8 +66,8 @@ EXEC sp_AltaAlumno '12345678','Rocio','Santini','618199595','vrs@hotmail.com','a
 go 
 
 select * from vw_AlumnosCarrera
+go
 select * from Carrera
-
 go 
 --sp_ModificarPersona
 --Modificar los datos basicos de un alumno: Telefono, email,domicilio o la carrera.
@@ -172,6 +172,7 @@ end
 go
 
 select * from vw_AlumnosCarrera
+go
 
 exec sp_BajaAlumno 9
 go
@@ -222,7 +223,7 @@ go
 go
 
 select * from Materia
-
+go
 --sp_CargarNota
 create procedure sp_carganota
     @legajo_alumno int,
@@ -333,7 +334,7 @@ exec sp_ModificarCarrera_Alumno 10,2
 select * from vw_AlumnosCarrera
 
 select * from Materia
-
+go
 --sp_AnotarAlumnoMateria
 --Anotar a un alumno a una materia segun la carrera seleccionada
 
